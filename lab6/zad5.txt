@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+    int rodzic = getpid();
+    int dziecko;
+    printf("korzen pid: %d, ppid: %d\n", rodzic, getppid());
+
+    fork();
+    if (getpid() != rodzic){
+        printf("dziecko 1 pid: %d, ppid: %d\n", getpid(), getppid());
+        dziecko = getpid();
+    }
+
+    fork();
+    if(getpid() == dziecko || getpid() == rodzic){
+        sleep(1);
+        exit(3);
+    }
+
+    if(getppid() == rodzic){
+        printf("dziecko 2 pid: %d, ppid: %d\n", getpid(), getppid());
+        fork();
+        if(getppid() != rodzic){
+            printf("wnuk 2 pid: %d, ppid: %d\n", getpid(), getppid());
+        }
+        
+    } 
+    else{
+        printf("wnuk 1 pid: %d, ppid: %d\n", getpid(), getppid());
+    }
+
+    return 0;
+}

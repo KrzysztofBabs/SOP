@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/time.h>
+#include <time.h>
+
+int main(){
+    pid_t pid1, pid2;
+    struct timeval tv;
+    time_t end_time;
+
+    pid1 = fork();
+
+    if(pid1 < 0){
+        perror("fork 1 failed");
+        exit(1);
+    }
+
+    if(pid1 == 0){
+        printf("Proces 1: Jestem procesem 1 (PID=%d)\n", getpid());
+        sleep(1);
+        exit(1);  
+    }
+
+    
+    pid2 = fork();
+
+    if(pid2 < 0){
+        perror("fork 2 failed");
+        exit(1);
+    }
+
+    if(pid2 == 0){
+        sleep(2);
+        printf("Proces 2: Jestem procesem 2 (PID=%d)\n", getpid());
+        exit(2);  // Kod wyjścia 2
+    }
+
+    
+    for(int i=0;i<2; i++){
+        int status;
+        pid_t finished_pid = wait(&status);
+
+        gettimeofday(&tv, NULL); 
+        end_time = tv.tv_sec;
+
+        printf("Rodzic: Proces PID=%d zakończył się z kodem %d o czasie %ld sek.\n",
+               finished_pid, WEXITSTATUS(status), end_time);
+    }
+
+    return 0;
+}

@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main(){
+    pid_t pid_dziecko, pid_wnuk;
+    pid_dziecko = fork(); 
+
+    if(pid_dziecko < 0){
+        perror("Błąd przy tworzeniu dziecka");
+        return 1;
+    }
+
+    if(pid_dziecko == 0){
+       
+        pid_wnuk = fork();  
+
+        if(pid_wnuk < 0){
+            perror("Błąd przy tworzeniu wnuka");
+            return 1;
+        }
+
+        if(pid_wnuk == 0){
+            printf("Wnuk działa\n");
+            sleep(2);
+            exit(5);   
+        }
+         else{
+            int status;
+            pid_t finished_pid = wait(&status); 
+
+            printf("Dziecko: Proces PID=%d zakończył się z kodem wyjścia: %d\n", finished_pid, WEXITSTATUS(status));
+            exit(0);
+        }
+    } 
+        else{
+        // Rodzic kończy się od razu
+        printf("Rodzic kończy działanie od razu (PID=%d)\n", getpid());
+        exit(0);
+    }
+
+    return 0;
+}
